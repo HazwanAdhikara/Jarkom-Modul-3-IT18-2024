@@ -158,6 +158,7 @@ iface eth0 inet static
 ## Setup Node
 
 #### Paradis (Router)
+
 ```
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 192.242.0.0/16
 apt-get update
@@ -165,6 +166,7 @@ apt install isc-dhcp-relay -y
 ```
 
 #### Tybur (DHCP Server)
+
 ```
 echo 'nameserver 192.242.4.2' > /etc/resolv.conf
 apt-get update
@@ -172,6 +174,7 @@ apt-get install isc-dhcp-server -y
 ```
 
 #### Fritz (DNS Server)
+
 ```
 echo 'nameserver 192.168.122.1' > /etc/resolv.conf
 apt-get update
@@ -194,6 +197,7 @@ service bind9 restart
 ```
 
 #### Warhammer (Database Server)
+
 ```
 echo 'nameserver 192.242.4.2' > /etc/resolv.conf
 apt-get update
@@ -202,6 +206,7 @@ service mysql start
 ```
 
 #### Load Balancer (Beast, Colossal)
+
 ```
 echo 'nameserver 192.242.4.2' > /etc/resolv.conf
 apt-get update
@@ -213,6 +218,7 @@ service nginx start
 ```
 
 #### Laravel Worker (Annie, Bertholdt, Reiner)
+
 ```
 apt-get update
 apt-get install lynx -y
@@ -232,6 +238,7 @@ service php8.0-fpm start
 ```
 
 #### PHP Worker (Armin, Eren, Mikasa)
+
 ```
 echo 'nameserver 192.242.4.2' > /etc/resolv.conf
 apt-get update
@@ -248,6 +255,7 @@ service php7.3-fpm start
 ```
 
 #### Client (Zeke, Erwin)
+
 ```
 apt update
 apt install lynx -y
@@ -256,186 +264,142 @@ apt install apache2-utils -y
 apt-get install jq -y
 ```
 
-## Soal 0 & 1
+## Soal 0
+
 Pulau Paradis telah menjadi tempat yang damai selama 1000 tahun, namun kedamaian tersebut tidak bertahan selamanya. Perang antara kaum Marley dan Eldia telah mencapai puncak. Kaum Marley yang dipimpin oleh Zeke, me-register domain name marley.yyy.com untuk worker Laravel mengarah pada Annie. Namun ternyata tidak hanya kaum Marley saja yang berinisiasi, kaum Eldia ternyata sudah mendaftarkan domain name eldia.yyy.com untuk worker PHP (0) mengarah pada Armin. (1)Lakukan konfigurasi sesuai dengan peta yang sudah diberikan.
 
-*Jalankan script berikut pada fritz untuk memasukkan domain eldia.it18.com (jalankan pada fritz)*
+`bisa gunakan script, atau config seperti ini pada dns-server(Fritz):`
 
-```bash
-echo 'zone "marley.it18.com" { 
-        type master; 
-        file "/etc/bind/marley/marley.it18.com";
-};
+Config `named.conf.local`
 
-zone "eldia.it18.com" {
-        type master;
-        file "/etc/bind/eldia/eldia.it18.com";
-}; ' >> /etc/bind/named.conf.local
+<img src="./public/localfritz.png">
 
-mkdir /etc/bind/marley
-mkdir /etc/bind/eldia
+Config `named.conf.options`
 
-echo ';
-; BIND data file for local loopback interface
-;
-$TTL    604800
-@       IN      SOA     marley.it18.com. root.marley.it18.com. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@       IN      NS      marley.it18.com.
-@       IN      A       192.242.1.2     ; IP Annie' > /etc/bind/marley/marley.it18.com
+<img src="./public/optionsfritz.png">
 
-echo ';
-; BIND data file for local loopback interface
-;
-$TTL    604800
-@       IN      SOA     eldia.it18.com. root.eldia.it18.com. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@       IN      NS      eldia.16.com.
-@       IN      A       192.242.2.2     ; IP Armin' > /etc/bind/eldia/eldia.it18.com
+`marley.it18.com`
 
-service bind9 restart
-```
-**Berikut adalah dokumentasi ping dari client**
+<img src="./public/marleyconfig.png">
 
-## Soal 2
+`eldia.it18.com`
+
+<img src="./public/eldiaconfig.png">
+
+> Jangan lupa untuk restart, lalu test ping pada client (Zeke dan Erwin)
+
+_Zeke_
+<img src="./public/zekeping.png">
+
+_Erwin_
+<img src="./public/erwinping.png">
+
+## Soal 1-5
+
+Lakukan konfigurasi sesuai dengan peta yang sudah diberikan.
+
 Jauh sebelum perang dimulai, ternyata para keluarga bangsawan, Tybur dan Fritz, telah membuat kesepakatan sebagai berikut:
+
 1. Semua Client harus menggunakan konfigurasi ip address dari keluarga Tybur (dhcp).
-2. Client yang melalui bangsa marley mendapatkan range IP dari [prefix IP].1.05 - [prefix IP].1.25 dan [prefix IP].1.50 - [prefix IP].1.100 (2)
+2. Client yang melalui bangsa marley mendapatkan range IP dari [prefix IP].1.05 - [prefix IP].1.25 dan [prefix IP].1.50 - [prefix IP].1.100
+3. Client yang melalui bangsa eldia mendapatkan range IP dari [prefix IP].2.09 - [prefix IP].2.27 dan [prefix IP].2 .81 - [prefix IP].2.243
+4. Client mendapatkan DNS dari keluarga Fritz dan dapat terhubung dengan internet melalui DNS tersebut
+5. Dikarenakan keluarga Tybur tidak menyukai kaum eldia, maka mereka hanya meminjamkan ip address ke kaum eldia selama 6 menit. Namun untuk kaum marley, keluarga Tybur meminjamkan ip address selama 30 menit. Waktu maksimal dialokasikan untuk peminjaman alamat IP selama 87 menit.
 
-*Maka pada fritz jalankan script berikut untuk mendapatkan range ip yang sesuai pada soal*
+_Pastikan DHCP Server dan Relay sudah run, dengan cara:_
+
+`Tybur`
+
 ```bash
-echo 'subnet 192.242.1.0 netmask 255.255.255.0 {
-    range 192.242.1.05 192.242.1.25;
-    range 192.242.1.50 192.242.1.100;
-    option routers 192.242.1.1;
-}
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
 
-subnet 192.242.2.0 netmask 255.255.255.0 {
-    # Configuration for subnet 192.242.2.0
-}
+apt-get update
+apt-get install isc-dhcp-server -y
 
-subnet 192.242.3.0 netmask 255.255.255.0 {
-    # Configuration for subnet 192.242.3.0
-}
+echo 'INTERFACESv4="eth0"' > /etc/default/isc-dhcp-server
+echo 'INTERFACESv6=""' >> /etc/default/isc-dhcp-server
 
-subnet 192.242.4.0 netmask 255.255.255.0 {
-    # Configuration for subnet 192.242.4.0
-}' > /etc/dhcp/dhcpd.conf
+echo 'option domain-name "example.org";' > /etc/dhcp/dhcpd.conf
+echo 'option domain-name-servers ns1.example.org, ns2.example.org;' >> /etc/dhcp/dhcpd.conf
+echo '' >> /etc/dhcp/dhcpd.conf
+echo 'default-lease-time 600;' >> /etc/dhcp/dhcpd.conf
+echo 'max-lease-time 7200;' >> /etc/dhcp/dhcpd.conf
+echo '' >> /etc/dhcp/dhcpd.conf
+echo 'ddns-update-style none;' >> /etc/dhcp/dhcpd.conf
+echo '' >> /etc/dhcp/dhcpd.conf
 
-# Restart DHCP service
+echo 'subnet 192.242.1.0 netmask 255.255.255.0 {' >> /etc/dhcp/dhcpd.conf
+echo '    range 192.242.1.5 192.242.1.25;' >> /etc/dhcp/dhcpd.conf
+echo '    range 192.242.1.50 192.242.1.100;' >> /etc/dhcp/dhcpd.conf
+echo '    option routers 192.242.1.1;' >> /etc/dhcp/dhcpd.conf
+echo '    option broadcast-address 192.242.1.255;' >> /etc/dhcp/dhcpd.conf
+echo '    option domain-name-servers 192.242.4.2;' >> /etc/dhcp/dhcpd.conf
+echo '    default-lease-time 1800;' >> /etc/dhcp/dhcpd.conf
+echo '    max-lease-time 5220;' >> /etc/dhcp/dhcpd.conf
+echo '}' >> /etc/dhcp/dhcpd.conf
+echo '' >> /etc/dhcp/dhcpd.conf
+
+echo 'subnet 192.242.2.0 netmask 255.255.255.0 {' >> /etc/dhcp/dhcpd.conf
+echo '    range 192.242.2.9 192.242.2.27;' >> /etc/dhcp/dhcpd.conf
+echo '    range 192.242.2.81 192.242.2.243;' >> /etc/dhcp/dhcpd.conf
+echo '    option routers 192.242.2.1;' >> /etc/dhcp/dhcpd.conf
+echo '    option broadcast-address 192.242.2.255;' >> /etc/dhcp/dhcpd.conf
+echo '    option domain-name-servers 192.242.4.2;' >> /etc/dhcp/dhcpd.conf
+echo '    default-lease-time 360;' >> /etc/dhcp/dhcpd.conf
+echo '    max-lease-time 5220;' >> /etc/dhcp/dhcpd.conf
+echo '}' >> /etc/dhcp/dhcpd.conf
+echo '' >> /etc/dhcp/dhcpd.conf
+
+echo 'subnet 192.242.3.0 netmask 255.255.255.0 {' >> /etc/dhcp/dhcpd.conf
+echo '}' >> /etc/dhcp/dhcpd.conf
+echo '' >> /etc/dhcp/dhcpd.conf
+
+echo 'subnet 192.242.4.0 netmask 255.255.255.0 {' >> /etc/dhcp/dhcpd.conf
+echo '}' >> /etc/dhcp/dhcpd.conf
+
 service isc-dhcp-server restart
 ```
-## Soal 3
-Client yang melalui bangsa eldia mendapatkan range IP dari [prefix IP].2.09 - [prefix IP].2.27 dan [prefix IP].2 .81 - [prefix IP].2.243 (3)
 
-*Jalankan script berikut lagi pada fritz*
-```bash
-echo 'subnet 192.242.1.0 netmask 255.255.255.0 {
-    range 192.242.1.05 192.242.1.25;
-    range 192.242.1.50 192.242.1.100;
-    option routers 192.242.1.1;
-}
-
-subnet 192.242.2.1 netmask 255.255.255.0 {
-    range 192.242.2.09 192.242.2.27;
-    range 192.242.2.81 192.242.2.243;
-    option routers 192.242.2.1;
-}
-
-subnet 192.242.3.0 netmask 255.255.255.0 {
-}
-
-subnet 192.242.4.0 netmask 255.255.255.0 {
-
-
-}' > /etc/dhcp/dhcpd.conf
-
-service isc-dhcp-server start
-```
-
-## Soal 4
-Client mendapatkan DNS dari keluarga Fritz dan dapat terhubung dengan internet melalui DNS tersebut (4)
-*Pada fritz jalankan script berikut agar client dapat terhubung dengan internet melalui dns tersebut*
+`Paradis`
 
 ```bash
-echo 'subnet 192.242.1.0 netmask 255.255.255.0 {
-    range 192.242.1.05 192.242.1.25;
-    range 192.242.1.50 192.242.1.100;
-    option routers 192.242.1.1;
-    option broadcast-address 192.242.1.255;
-    option domain-name-servers 192.242.3.2;
-}
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
 
-subnet 192.242.2.1 netmask 255.255.255.0 {
-    range 192.242.2.09 192.242.2.27;
-    range 192.242.2.81 192.242.2.242;
-    option routers 192.242.2.1;
-    option broadcast-address 192.242.1.255;
-    option domain-name-servers 192.242.3.2;
-}
+apt-get update
+apt-get install isc-dhcp-relay -y
+service isc-dhcp-relay start
 
-subnet 192.242.3.0 netmask 255.255.255.0 {
-}
+echo 'SERVERS="192.242.4.3"' > /etc/default/isc-dhcp-relay
+echo 'INTERFACES="eth1 eth2 eth3 eth4"' >> /etc/default/isc-dhcp-relay
+echo 'OPTIONS=""' >> /etc/default/isc-dhcp-relay
 
-subnet 192.242.4.0 netmask 255.255.255.0 {
+echo 'net.ipv4.ip_forward=1' > /etc/sysctl.conf
 
-
-}' > /etc/dhcp/dhcpd.conf
-
-service isc-dhcp-server start
+service isc-dhcp-relay restart
 ```
 
-## Soal 5
-Dikarenakan keluarga Tybur tidak menyukai kaum eldia, maka mereka hanya meminjamkan ip address ke kaum eldia selama 6 menit. Namun untuk kaum marley, keluarga Tybur meminjamkan ip address selama 30 menit. Waktu maksimal dialokasikan untuk peminjaman alamat IP selama 87 menit. (5)
+> Setelah kita run script tsb, kita telah menyesuaikan apa yang diminta soal
 
-*Jalankan pada fritz*
-```bash
-echo 'subnet 192.242.1.0 netmask 255.255.255.0 {
-    range 192.242.1.05 192.242.1.25;
-    range 192.242.1.50 192.242.1.100;
-    option routers 192.242.1.1;
-    option broadcast-address 192.242.1.255;
-    option domain-name-servers 192.242.3.2;
-    default-lease-time 1800;
-        max-lease-time 5220;
+Lalu kita cek, apakah IP Range beserta lease time yang di set sudah sesuai atau belum melalui Client
 
-}
+`Zeke`
 
-subnet 192.242.2.1 netmask 255.255.255.0 {
-    range 192.242.2.09 192.242.2.27;
-    range 192.242.2.81 192.242.2.242;
-    option routers 192.242.2.1;
-    option broadcast-address 192.242.1.255;
-    option domain-name-servers 192.242.3.2;
-    default-lease-time 360;
-    max-lease-time 5220;
-}
+<img src="./public/zekerange.png">
 
-subnet 192.242.3.0 netmask 255.255.255.0 {
-}
+`Erwin`
 
-subnet 192.242.4.0 netmask 255.255.255.0 {
+<img src="./public/erwinrange.png">
 
-
-}' > /etc/dhcp/dhcpd.conf
-
-service isc-dhcp-server start
-```
+Test ping marley dan eldia
+<img src="./public/zekeping.png">
+<img src="./public/erwinping.png">
 
 ## Soal 6
+
 Armin berinisiasi untuk memerintahkan setiap worker PHP untuk melakukan konfigurasi virtual host untuk website berikut https://intip.in/BangsaEldia dengan menggunakan php 7.3 (6)
 
-*Untuk itu jalankan script berikut di semua php worker yaitu; Armin, Eren dan Mikasa*
+_Untuk itu jalankan script berikut di semua php worker yaitu; Armin, Eren dan Mikasa_
+
 ```bash
 mkdir -p /var/www/eldia.it18.com
 
@@ -481,11 +445,13 @@ nginx -t
 ```
 
 ## Soal 7
-Dikarenakan Armin sudah mendapatkan kekuatan titan colossal, maka bantulah kaum eldia menggunakan colossal agar dapat bekerja sama dengan baik. Kemudian lakukan testing dengan 6000 request dan 200 
+
+Dikarenakan Armin sudah mendapatkan kekuatan titan colossal, maka bantulah kaum eldia menggunakan colossal agar dapat bekerja sama dengan baik. Kemudian lakukan testing dengan 6000 request dan 200
 request/second. (7)
-*Untuk itu kita perlu menjalankan script pada colossal dan juga fritz kemudian kita masuk ke client untuk melakukan test*
+_Untuk itu kita perlu menjalankan script pada colossal dan juga fritz kemudian kita masuk ke client untuk melakukan test_
 
 **Colossal.sh**
+
 ```bash
 echo '
  upstream myweb  {
@@ -511,6 +477,7 @@ nginx -t
 ```
 
 **Fritz.sh**
+
 ```bash
 echo ';
 ; BIND data file for local loopback interface
@@ -529,19 +496,22 @@ $TTL    604800
 service bind9 restart
 ```
 
-*Kemudian kita melakukan testing pada client dengan menggunakan command berikut*
+_Kemudian kita melakukan testing pada client dengan menggunakan command berikut_
+
 ```
 ab -n 6000 -c 200 http://eldia.it18.com/
 ```
 
 ## Soal 8
-Karena Erwin meminta “laporan kerja Armin”, maka dari itu buatlah analisis hasil testing dengan 1000 request dan 75 request/second untuk masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut:
-	a. Nama Algoritma Load Balancer
-	b. Report hasil testing pada Apache Benchmark
-	c. Grafik request per second untuk masing masing algoritma. 
-	d. Analisis (8)
 
-*Untuk Melakukan testing semua algoritma load balancer kita gunakan script sebagai berikut*
+Karena Erwin meminta “laporan kerja Armin”, maka dari itu buatlah analisis hasil testing dengan 1000 request dan 75 request/second untuk masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut:
+a. Nama Algoritma Load Balancer
+b. Report hasil testing pada Apache Benchmark
+c. Grafik request per second untuk masing masing algoritma.
+d. Analisis (8)
+
+_Untuk Melakukan testing semua algoritma load balancer kita gunakan script sebagai berikut_
+
 ```bash
 echo 'upstream round_robin  {
     server 192.242.2.2 ; #IP Armin
@@ -551,7 +521,7 @@ echo 'upstream round_robin  {
 
 server {
     listen 8080;
-        
+
 
         location / {
             proxy_pass http://round_robin;
@@ -615,7 +585,7 @@ echo 'upstream least_conn  {
 
 server {
     listen 8083;
-        
+
         location / {
             proxy_pass http://least_conn;
             proxy_set_header    X-Real-IP $remote_addr;
@@ -637,7 +607,7 @@ ln -s /etc/nginx/sites-available/least-conn /etc/nginx/sites-enabled/least-conn
 service nginx restart
 ```
 
-*Lalu kita bisa membuat laporan pada client dengan script sebagai berikut*
+_Lalu kita bisa membuat laporan pada client dengan script sebagai berikut_
 
 ```bash
 #!/bin/bash
@@ -899,7 +869,7 @@ MultiTestWorker() {
   sleep 1
   LeastConn1Test $inReq $inCon
   sleep 1
-  
+
   echo "Multi Test Done"
 
   echo -e "\n\n+++++ Laporan Hasil Pengujian Load Balancer +++++"
@@ -944,12 +914,15 @@ else
   echo "Unknown Input"
 fi
 ```
+
 Maka dengan begitu kita dapat mendapatkan hasil laporan dengan rapi termasuk Nama Algoritma Load Balancer, Report hasil testing pada Apache Benchmark, Grafik request per second untuk masing masing algoritma dan Analisis
 
 ## Soal 9
+
 Dengan menggunakan algoritma Least-Connection, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 1000 request dengan 10 request/second, kemudian tambahkan grafiknya pada “laporan kerja Armin”. (9)
 
-*Maka kita perlu menjalankan sh berikut pada load balancer*
+_Maka kita perlu menjalankan sh berikut pada load balancer_
+
 ```bash
 echo 'upstream least_conn_2_worker  {
     least_conn;
@@ -959,7 +932,7 @@ echo 'upstream least_conn_2_worker  {
 
 server {
     listen 8084;
-        
+
         location / {
             proxy_pass http://least_conn_2_worker;
             proxy_set_header    X-Real-IP $remote_addr;
@@ -979,7 +952,7 @@ echo 'upstream least_conn_1_worker  {
 
 server {
     listen 8085;
-        
+
         location / {
             proxy_pass http://least_conn_1_worker;
             proxy_set_header    X-Real-IP $remote_addr;
@@ -998,9 +971,11 @@ service nginx restart
 ```
 
 ## Soal 10
+
 Selanjutnya coba tambahkan keamanan dengan konfigurasi autentikasi di Colossal dengan dengan kombinasi username: “arminannie” dan password: “jrkmyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/supersecret/ (10)
 
-*Untuk menambahkan keamanan dengan username dan password berikut maka kita akan menjalankan script berikut pada load balancer*
+_Untuk menambahkan keamanan dengan username dan password berikut maka kita akan menjalankan script berikut pada load balancer_
+
 ```bash
 mkdir /etc/nginx/supersecret/
 
@@ -1013,7 +988,7 @@ echo 'upstream round_robin  {
 
 server {
     listen 8080;
-        
+
 
         location / {
             auth_basic "Restricted Content";
@@ -1035,9 +1010,11 @@ service nginx restart
 ```
 
 ## Soal 11
+
 Lalu buat untuk setiap request yang mengandung /titan akan di proxy passing menuju halaman https://attackontitan.fandom.com/wiki/Attack_on_Titan_Wiki (11)
 
-*Jalankan script berikut pada load balancer*
+_Jalankan script berikut pada load balancer_
+
 ```bash
 #Pada Colossal
 
@@ -1072,7 +1049,8 @@ nginx -t
 ```
 
 ## Soal 12
-Selanjutnya Colossal ini hanya boleh diakses oleh client dengan IP [Prefix IP].1.77, [Prefix IP].1.88, [Prefix IP].2.144, dan [Prefix IP].2.156. (12) 
+
+Selanjutnya Colossal ini hanya boleh diakses oleh client dengan IP [Prefix IP].1.77, [Prefix IP].1.88, [Prefix IP].2.144, dan [Prefix IP].2.156. (12)
 
 ```bash
 # Pada Colossal
@@ -1126,8 +1104,9 @@ echo 'hwaddress ether fa:61:fb:1a:8d:5b' >> /etc/network/interfaces
 ```
 
 ## Soal 13
-Melihat perlawanan yang sengit dari kaum eldia, kaum marley pun memutar otak dan mengatur para worker di marley. 
-Karena mengetahui bahwa ada keturunan marley yang mewarisi kekuatan titan, Zeke pun berinisiatif untuk menyimpan data data penting di Warhammer, dan semua data tersebut harus dapat diakses oleh anak buah kesayangannya, Annie, Reiner, dan Berthold.  (13)
+
+Melihat perlawanan yang sengit dari kaum eldia, kaum marley pun memutar otak dan mengatur para worker di marley.
+Karena mengetahui bahwa ada keturunan marley yang mewarisi kekuatan titan, Zeke pun berinisiatif untuk menyimpan data data penting di Warhammer, dan semua data tersebut harus dapat diakses oleh anak buah kesayangannya, Annie, Reiner, dan Berthold. (13)
 
 ```bash
 # Pada Warhammer
@@ -1142,7 +1121,5 @@ FLUSH PRIVILEGES;
 exit
 ```
 
-Lalu akses pada semua laravel worker dengan  menggunakan `mariadb --host=192.242.3.4 --port=3306 --user=kelompokit18 --password
+Lalu akses pada semua laravel worker dengan menggunakan `mariadb --host=192.242.3.4 --port=3306 --user=kelompokit18 --password
 `
-
-
