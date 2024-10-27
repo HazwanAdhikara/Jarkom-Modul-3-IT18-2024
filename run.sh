@@ -42,6 +42,7 @@ elif [[ $1 == "dns-server" ]]; then
     echo '' >> /etc/bind/named.conf.options
     echo '    forwarders {' >> /etc/bind/named.conf.options
     echo '        192.168.122.1;' >> /etc/bind/named.conf.options
+    echo '        8.8.8.8;' >> /etc/bind/named.conf.options
     echo '    };' >> /etc/bind/named.conf.options
     echo '    allow-query { any; };' >> /etc/bind/named.conf.options
     echo '    listen-on-v6 { any; };' >> /etc/bind/named.conf.options
@@ -200,7 +201,7 @@ elif [[ $1 == "worker-php" ]]; then
         listen 80;
         root /var/www/html;
         index index.html index.htm index.nginx-debian.html;
-        server_name _;
+        server_name eldia.it18.com;
 
         location / {
             proxy_pass http://php_backend;

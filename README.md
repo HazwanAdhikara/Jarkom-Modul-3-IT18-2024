@@ -398,109 +398,140 @@ Test ping marley dan eldia
 
 Armin berinisiasi untuk memerintahkan setiap worker PHP untuk melakukan konfigurasi virtual host untuk website berikut https://intip.in/BangsaEldia dengan menggunakan php 7.3 (6)
 
-_Untuk itu jalankan script berikut di semua php worker yaitu; Armin, Eren dan Mikasa_
+_Jalankan script berikut di semua php worker yaitu; Armin, Eren dan Mikasa_
 
 ```bash
-mkdir -p /var/www/eldia.it18.com
+echo 'nameserver 192.242.4.2' > /etc/resolv.conf # IP DNS-SERVER
 
-wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1TvebIeMQjRjFURKVtA32lO9aL7U2msd6' -O /root/bangsaEldia.zip
-unzip /root/bangsaEldia.zip -d /var/www/eldia.it18.com
-rm -rf /root/bangsaEldia.zip
+apt-get update
 
-echo '
-server {
+apt-get install nginx -y
+apt-get install lynx -y
+apt-get install php7.3 php7.3-fpm php7.3-mysql -y   # Install PHP 7.3 dan modul yang diperlukan
+apt-get install wget -y
+apt-get install unzip -y
+apt-get install rsync -y    # Install rsync untuk transfer file
 
-        listen 80;
+service nginx start
+service php7.3-fpm start    # Jalankan PHP-FPM versi 7.3
 
-        root /var/www/eldia.it18.com;
+wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1ufulgiWyTbOXQcow11JkXG7safgLq1y-' -O '/var/www/modul-3.zip'
 
-        index index.php index.html index.htm;
-        server_name _;
+unzip -o /var/www/modul-3.zip -d /var/www/
+rm /var/www/modul-3.zip
 
-        location / {
-                        try_files $uri $uri/ /index.php?$query_string;
-        }
+rsync -av /var/www/modul-3/ /var/www/eldia.it18.com/
 
-        # pass PHP scripts to FastCGI server
-        location ~ \.php$ {
+rm -r /var/www/modul-3
+
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/eldia.it18.com
+
+ln -s /etc/nginx/sites-available/eldia.it18.com /etc/nginx/sites-enabled/
+
+rm /etc/nginx/sites-enabled/default
+
+echo 'server {
+    listen 80;
+    server_name _;
+
+    root /var/www/eldia.it18.com;
+    index index.php index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
         include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
-        }
+        fastcgi_pass unix:/run/php/php7.3-fpm.sock;  # Sesuaikan versi PHP dan socket
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}' > /etc/nginx/sites-available/eldia.it18.com
 
-location ~ /\.ht {
-                        deny all;
-        }
-
-        error_log /var/log/nginx/jarkom_error.log;
-        access_log /var/log/nginx/jarkom_access.log;
- }' > /etc/nginx/sites-available/eldia.it18.com
-
-ln -s /etc/nginx/sites-available/eldia.it18.com /etc/nginx/sites-enabled
-rm -rf /etc/nginx/sites-enabled/default
-
-service php7.3-fpm start
-service php7.3-fpm restart
 service nginx restart
-nginx -t
+service php7.3-fpm restart
+
 ```
+
+> Lalu kita masuk ke terminal Client, dan lakukan test menggunakan lynx:
+
+```
+lynx 192.242.2.2
+```
+
+<img src="./public/arminlynx.png">
+
+```
+lynx 192.242.2.3
+```
+
+<img src="./public/erenlynx.png">
+
+```
+lynx 192.242.2.4
+```
+
+<img src="./public/mikasalynx.png">
 
 ## Soal 7
 
 Dikarenakan Armin sudah mendapatkan kekuatan titan colossal, maka bantulah kaum eldia menggunakan colossal agar dapat bekerja sama dengan baik. Kemudian lakukan testing dengan 6000 request dan 200
 request/second. (7)
-_Untuk itu kita perlu menjalankan script pada colossal dan juga fritz kemudian kita masuk ke client untuk melakukan test_
 
-**Colossal.sh**
+_Kita perlu jalankan Script dibawah ini untuk setup load balancer pada colossal_
 
 ```bash
-echo '
- upstream myweb  {
-        server 192.246.2.2; #IP Armin
-        server 192.246.2.3; #IP Eren
-        server 192.246.2.1; #IP Mikasa
- }
+echo 'nameserver 192.242.4.2' > /etc/resolv.conf
 
- server {
-        listen 80;
-        server_name eldia.18.com;
+apt-get update
 
-        location / {
-        proxy_pass http://myweb;
-        }
- }' > /etc/nginx/sites-available/lb-php
+apt-get install apache2-utils -y   # Untuk testing menggunakan ApacheBench (ab)
+apt-get install nginx -y           # Install Nginx sebagai load balancer
+apt-get install lynx -y            # Install lynx untuk akses web via command line
 
-ln -s /etc/nginx/sites-available/lb-php /etc/nginx/sites-enabled
-rm -rf /etc/nginx/sites-enabled/default
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/colossal_lb
+
+echo "upstream php_backend {
+    server 192.242.2.2;  # Armin
+    server 192.242.2.3;  # Eren
+    server 192.242.2.4;  # Mikasa
+}
+
+server {
+    listen 80;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name eldia.it18.com;
+
+    location / {
+        proxy_pass http://php_backend;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}" > /etc/nginx/sites-enabled/colossal_lb
+
+ln -sf /etc/nginx/sites-available/colossal_lb /etc/nginx/sites-enabled/
+
+rm -r /etc/nginx/sites-enabled/default
 
 service nginx restart
-nginx -t
 ```
 
-**Fritz.sh**
+**Ubah IP yang dituju pada Fritz (DNS-Server)**
 
-```bash
-echo ';
-; BIND data file for local loopback interface
-;
-$TTL    604800
-@       IN      SOA     eldia.it18.com. root.eldia.it18.com. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@       IN      NS      eldia.it18.com.
-@       IN      A       192.246.3.3     ; IP Colossal' > /etc/bind/eldia/eldia.it18.com
-
-service bind9 restart
-```
+<img src="./public/lbfritz.png">
 
 _Kemudian kita melakukan testing pada client dengan menggunakan command berikut_
 
 ```
 ab -n 6000 -c 200 http://eldia.it18.com/
 ```
+
+<img src="./public/lynxrequest.png">
+<img src="./public/lynxrequest2.png">
 
 ## Soal 8
 
