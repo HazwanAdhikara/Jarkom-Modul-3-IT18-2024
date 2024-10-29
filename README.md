@@ -1156,6 +1156,7 @@ service isc-dhcp-server restart
 # Zeke
 echo 'hwaddress ether fa:61:fb:1a:8d:5b' >> /etc/network/interfaces
 ```
+**Client yang ga dikasih fixed address**
 
 ![380458281-91750d14-4931-4865-8af9-ab19c9b889ed](https://github.com/user-attachments/assets/6b4c8ec2-f957-434b-9ae0-bb77abf90dbb)
 ![380458343-fdacbd13-ce85-4e3f-b525-74b7f93ecc49](https://github.com/user-attachments/assets/db7c0eb8-ba8e-48c3-b6a8-6d07ba051d95)
@@ -1181,4 +1182,4 @@ exit
 Lalu akses pada semua laravel worker dengan menggunakan `mariadb --host=192.242.3.4 --port=3306 --user=kelompokit18 --password
 `
 
-<img src="https://github.com/user-attachments/assets/19a7ddf9-b310-40e3-aeab-e116830c62b7" width="400">
+<img src="https://github.com/user-attachments/assets/19a7ddf9-b310-40e3-aeab-e116830c62b7" width="350">
