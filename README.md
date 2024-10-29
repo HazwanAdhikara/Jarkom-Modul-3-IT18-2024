@@ -952,9 +952,6 @@ Maka dengan begitu kita dapat mendapatkan hasil laporan dengan rapi termasuk Nam
 
 ![image](https://github.com/user-attachments/assets/7e9e89e5-cff3-4974-b7fb-56686d4fcc77)
 
-![image](https://github.com/user-attachments/assets/6f6809f7-be45-4ab7-82fc-bb98b459cc54)
-
-![image](https://github.com/user-attachments/assets/d19e9f03-4b89-4598-8351-e3a9a0f21215)
 
 ## Soal 9
 
@@ -1008,6 +1005,12 @@ ln -s /etc/nginx/sites-available/least-conn-1-worker /etc/nginx/sites-enabled/le
 
 service nginx restart
 ```
+
+![image](https://github.com/user-attachments/assets/6f6809f7-be45-4ab7-82fc-bb98b459cc54)
+
+![image](https://github.com/user-attachments/assets/d19e9f03-4b89-4598-8351-e3a9a0f21215)
+
+Metode **Round Robin** dengan 3 worker terbukti sebagai konfigurasi yang paling optimal untuk mendukung permintaan tinggi secara konsisten dan sedikit kesalahan.
 
 ## Soal 10
 
@@ -1176,3 +1179,5 @@ exit
 
 Lalu akses pada semua laravel worker dengan menggunakan `mariadb --host=192.242.3.4 --port=3306 --user=kelompokit18 --password
 `
+
+<img src="https://github.com/user-attachments/assets/19a7ddf9-b310-40e3-aeab-e116830c62b7" width="400">
