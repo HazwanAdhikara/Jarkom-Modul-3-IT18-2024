@@ -1098,6 +1098,7 @@ rm -rf /etc/nginx/sites-enabled/default
 service nginx restart
 nginx -t
 ```
+masuk ke client dan jalan kan dengan lynx ip colossal dan tambahkan /titan dibelakang portnya
 
 ![380428201-99020a19-bd54-4e3d-8dae-6e7e7528843f](https://github.com/user-attachments/assets/c1fdb69e-7a44-4f3a-bee2-cc0e38eab8d8)
 
