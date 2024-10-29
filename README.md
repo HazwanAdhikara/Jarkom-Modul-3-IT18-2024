@@ -948,6 +948,14 @@ fi
 
 Maka dengan begitu kita dapat mendapatkan hasil laporan dengan rapi termasuk Nama Algoritma Load Balancer, Report hasil testing pada Apache Benchmark, Grafik request per second untuk masing masing algoritma dan Analisis
 
+![image](https://github.com/user-attachments/assets/313aef75-b724-458e-8509-72391d527c9d)
+
+![image](https://github.com/user-attachments/assets/7e9e89e5-cff3-4974-b7fb-56686d4fcc77)
+
+![image](https://github.com/user-attachments/assets/6f6809f7-be45-4ab7-82fc-bb98b459cc54)
+
+![image](https://github.com/user-attachments/assets/d19e9f03-4b89-4598-8351-e3a9a0f21215)
+
 ## Soal 9
 
 Dengan menggunakan algoritma Least-Connection, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 1000 request dengan 10 request/second, kemudian tambahkan grafiknya pada “laporan kerja Armin”. (9)
@@ -1040,6 +1048,15 @@ ln -s /etc/nginx/sites-available/round-robin /etc/nginx/sites-enabled/round-robi
 service nginx restart
 ```
 
+Kemudian domain bisa diakses melalui client menggunakan lynx
+
+![380457408-9dd22611-11ef-4147-b1f5-b66733f2ffc3](https://github.com/user-attachments/assets/3a4ae802-8052-4366-a31c-fa0eae38aaad)
+![380457449-ca4571a6-8e85-4235-a0b9-8d65429798bf](https://github.com/user-attachments/assets/9d8e7b0a-be6a-42f6-a7fe-db90bc7392f9)
+![380457508-ebef7b4d-17d7-45d6-8b6c-baed6d41e167](https://github.com/user-attachments/assets/9f0b6d3e-e887-4099-bbe7-758b81874d61)
+![380457521-224bd2f8-b71d-42c6-ba95-496437c859dd](https://github.com/user-attachments/assets/b563beb6-e51e-42a1-9864-799c4945798d)
+
+
+
 ## Soal 11
 
 Lalu buat untuk setiap request yang mengandung /titan akan di proxy passing menuju halaman https://attackontitan.fandom.com/wiki/Attack_on_Titan_Wiki (11)
@@ -1078,6 +1095,8 @@ rm -rf /etc/nginx/sites-enabled/default
 service nginx restart
 nginx -t
 ```
+
+![380428201-99020a19-bd54-4e3d-8dae-6e7e7528843f](https://github.com/user-attachments/assets/c1fdb69e-7a44-4f3a-bee2-cc0e38eab8d8)
 
 ## Soal 12
 
@@ -1133,6 +1152,9 @@ service isc-dhcp-server restart
 # Zeke
 echo 'hwaddress ether fa:61:fb:1a:8d:5b' >> /etc/network/interfaces
 ```
+
+![380458281-91750d14-4931-4865-8af9-ab19c9b889ed](https://github.com/user-attachments/assets/6b4c8ec2-f957-434b-9ae0-bb77abf90dbb)
+![380458343-fdacbd13-ce85-4e3f-b525-74b7f93ecc49](https://github.com/user-attachments/assets/db7c0eb8-ba8e-48c3-b6a8-6d07ba051d95)
 
 ## Soal 13
 
